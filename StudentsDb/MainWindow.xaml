@@ -4,9 +4,102 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:StudentsDb"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        xmlns:Faculties="clr-namespace:StudentsDb.Faculties"
+        xmlns:Specialities="clr-namespace:StudentsDb.Specialities"
+        xmlns:Students="clr-namespace:StudentsDb.Students"
+        xmlns:Report="clr-namespace:StudentsDb.Report"
+        mc:Ignorable="d"        
+        Title="База данных студентов" Height="450" Width="800">
+    <Window.DataContext>
+        <local:MainWindowViewModel />
+    </Window.DataContext>
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type Faculties:FacultiesViewModel}">
+            <Faculties:FacultiesView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type Specialities:SpecialitiesViewModel}">
+            <Specialities:SpecialitiesView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type Students:StudentsViewModel}">
+            <Students:StudentsView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type Report:ReportViewModel}">
+            <Report:ReportView />
+        </DataTemplate>
+    </Window.Resources>
     <Grid>
-        
+        <DockPanel>            
+            <StatusBar x:Name="Status" 
+                                   Background="Beige"
+                                   Height="28" Width="Auto"
+                                   DockPanel.Dock="Bottom"
+                                   VerticalAlignment="Bottom">
+                <StatusBarItem HorizontalAlignment="Stretch"
+                               HorizontalContentAlignment="Stretch">
+                    <TextBlock x:Name="StatusTextBlock" Text=""/>
+                </StatusBarItem>
+                <StatusBarItem HorizontalAlignment="Right">
+                    <StackPanel Orientation="Horizontal" >
+                        <Button x:Name="Seed1"
+                                Click="Seed1_Click"
+                                Margin="3,0"
+                                Width="100"
+                                Content="Набор данных 1">
+                        </Button>
+                        <Button x:Name="Seed2"
+                                Click="Seed2_Click"
+                                Margin="3,0"
+                                Width="100"
+                                Content="Набор данных 2">
+                        </Button>
+                        <Button x:Name="Seed3"
+                                Click="Seed3_Click"
+                                Margin="3,0"
+                                Width="150"
+                                Content="Набор данных 3 (пустой)">
+                        </Button>
+                    </StackPanel>
+                </StatusBarItem>                
+            </StatusBar>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid x:Name="NavBar">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="FacultiesButton"
+                            Content="Факультеты"
+                            Command="{Binding NavCommand}"
+                            CommandParameter="faculties"
+                            Margin="3"
+                            Grid.Column="0" />
+                    <Button Content="Специальности"
+                            Command="{Binding NavCommand}"
+                            CommandParameter="specialities"
+                            Margin="3"
+                            Grid.Column="1" />
+                    <Button Content="Студенты"
+                            Command="{Binding NavCommand}"
+                            CommandParameter="students"
+                            Margin="3"
+                            Grid.Column="2" />
+                    <Button Content="Отчёт"
+                            Command="{Binding NavCommand}"
+                            CommandParameter="report"
+                            Margin="3"
+                            Grid.Column="3" />
+                </Grid>
+                <Grid x:Name="MainContent"
+                      Grid.Row="1">
+                    <ContentControl Content="{Binding CurrectViewModel}" />
+                </Grid>
+            </Grid>
+        </DockPanel>
     </Grid>
 </Window>
