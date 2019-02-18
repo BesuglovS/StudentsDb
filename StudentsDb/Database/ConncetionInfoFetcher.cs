@@ -18,24 +18,39 @@ namespace StudentsDb.Database
                 return null;
             }
 
+            var connectionFileLines = new List<string>();
+
             using (StreamReader sr = new StreamReader(Filename))
             {
                 string line;
                 while ((line = sr.ReadLine()) != null)
                 {
-                    if (line.Contains("="))
-                    {
-                        var split = line.Split(new[] { '=' }, 2);
-                        if (iniFileData.ContainsKey(split[0]))
-                        {
-                            iniFileData[split[0]] = split[1];
-                        }
-                        else
-                        {
-                            iniFileData.Add(split[0], split[1]);
-                        }
+                    connectionFileLines.Add(line);
+                }
+            }
 
+            if (connectionFileLines.Count == 1 && connectionFileLines[0] != "[Connection Data]")
+            {
+                DatabaseConnectionInfo Dci = new DatabaseConnectionInfo();
+                Dci.IsSimpleConnectionString = true;
+                Dci.ConnectionString = connectionFileLines[0];
+                return Dci;
+            }
+
+            foreach (var line in connectionFileLines)
+            {
+                if (line.Contains("="))
+                {
+                    var split = line.Split(new[] { '=' }, 2);
+                    if (iniFileData.ContainsKey(split[0]))
+                    {
+                        iniFileData[split[0]] = split[1];
                     }
+                    else
+                    {
+                        iniFileData.Add(split[0], split[1]);
+                    }
+
                 }
             }
 

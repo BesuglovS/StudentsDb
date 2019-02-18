@@ -19,5 +19,8 @@
         public string ConnectionDatabaseName;
         public string ConnectionUsername;
         public string ConnectionPassword;
+
+        public bool IsSimpleConnectionString { get; set; }
+        public string ConnectionString { get; set; }
     }
 }

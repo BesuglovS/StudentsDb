@@ -30,13 +30,16 @@ namespace StudentsDb.Database
                 return null;
             }
 
-            var cs = "data source=tcp:" + _connectionInfo.ConnectionServer +
+            if (_connectionInfo.IsSimpleConnectionString)
+            {
+                return _connectionInfo.ConnectionString;
+            }
+
+            return "data source=tcp:" + _connectionInfo.ConnectionServer +
                    "; Database=" + _connectionInfo.ConnectionDatabaseName +
                    "; User Id=" + _connectionInfo.ConnectionUsername +
                    "; Password=" + _connectionInfo.ConnectionPassword +
                    "; multipleactiveresultsets=True";
-
-            return cs;
         }
 
         private static DatabaseConnectionInfo GetConnectionInfo()
