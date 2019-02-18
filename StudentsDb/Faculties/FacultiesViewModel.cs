@@ -7,15 +7,18 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace StudentsDb.Faculties
 {
     public class FacultiesViewModel : BindableBase
     {
         private IFacultyRepository _repo;
-        public FacultiesViewModel(IFacultyRepository repo)
+        private ISpecialityRepository _sRepo;
+        public FacultiesViewModel(IFacultyRepository repo, ISpecialityRepository sRepo)
         {
             _repo = repo;
+            _sRepo = sRepo;
 
             AddCommand = new RelayCommand(OnAddFaculty);
             UpdateCommand = new RelayCommand(OnUpdateFaculty);
@@ -37,6 +40,14 @@ namespace StudentsDb.Faculties
         private async void OnAddFaculty()
         {
             SelectedFaculty.FacultyId = 0;
+
+            var facultyNames = (await _repo.GetFacultiesAsync()).Select(f => f.Name).ToList();
+            if (facultyNames.Contains(SelectedFaculty.Name))
+            {
+                MessageBox.Show("Факульте с таким именем уже существует.", "Ошибка");
+                return;
+            }
+
             var result = await _repo.AddFacultyAsync(SelectedFaculty);
             Faculties.Add(result);
         }
@@ -50,6 +61,26 @@ namespace StudentsDb.Faculties
 
         private async void OnRemoveFaculty()
         {
+            var facultySpecialities = await _sRepo.GetFilteredSpecialtiesAsync(s =>
+                s.FacultyId == SelectedFaculty.FacultyId);
+            if (facultySpecialities.Count > 0)
+            {
+                var result = MessageBox.Show(
+                    "Вы точно хотите удалить факультет вместе с прикреплёнными специальностями и студентами?",
+                    "К этому факультету прикреплены специальности.",
+                    MessageBoxButton.YesNo);
+
+                switch (result)
+                {
+                    case MessageBoxResult.Yes:
+                        break;
+                    case MessageBoxResult.No:
+                        return;
+                    default:
+                        return;
+                }
+            }
+
             await _repo.DeleteFacultyWithSpecialitiesAndStudentsAsync(SelectedFaculty.FacultyId);
             var faculty = Faculties.FirstOrDefault(f => f.FacultyId == SelectedFaculty.FacultyId);
             if (faculty != null)

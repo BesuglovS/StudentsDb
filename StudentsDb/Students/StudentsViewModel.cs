@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace StudentsDb.Students
 {
@@ -40,6 +41,19 @@ namespace StudentsDb.Students
         private async void OnAddStudent()
         {
             SelectedStudent.StudentId = 0;
+
+            var allStudents = await _repo.GetStudentsAsync();
+            if (allStudents.Any(s =>
+                s.Fio == SelectedStudent.Fio &&
+                s.Address == SelectedStudent.Address &&
+                s.Phone == SelectedStudent.Phone &&
+                s.AdmissionYear == SelectedStudent.AdmissionYear &&
+                s.SpecialityId == SelectedStudent.SpecialityId))
+            {
+                MessageBox.Show("Студент с такими данными уже существует на данной специальности.", "Ошибка");
+                return;
+            }
+
             var result = await _repo.AddStudentAsync(SelectedStudent);
             Students.Add(result);
         }

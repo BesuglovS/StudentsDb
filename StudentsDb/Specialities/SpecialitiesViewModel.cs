@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace StudentsDb.Specialities
 {
@@ -42,6 +43,16 @@ namespace StudentsDb.Specialities
         private async void OnAddSpecialty()
         {
             SelectedSpeciality.SpecialtyId = 0;
+
+            var allSpecialities = await _repo.GetSpecialtiesAsync();            
+            if (allSpecialities.Any(s => 
+                s.Name == SelectedSpeciality.Name && 
+                s.FacultyId == SelectedSpeciality.FacultyId))
+            {
+                MessageBox.Show("Специальность с таким именем уже существует на этом факультете.", "Ошибка");
+                return;
+            }
+
             var result = await _repo.AddSpecialtyAsync(SelectedSpeciality);
             Specialities.Add(result);
         }
@@ -57,6 +68,26 @@ namespace StudentsDb.Specialities
 
         private async void OnRemoveSpecialty()
         {
+            var specialityStudents = await _sRepo.GetFilteredStudentsAsync(st => 
+                st.SpecialityId == SelectedSpeciality.SpecialtyId);
+            if (specialityStudents.Count > 0)
+            {
+                var result = MessageBox.Show(
+                    "Вы точно хотите удалить специальность вместе с прикреплёнными студентами?", 
+                    "К этой специальности прикреплены студенты.", 
+                    MessageBoxButton.YesNo);
+
+                switch (result)
+                {                   
+                    case MessageBoxResult.Yes:
+                        break;
+                    case MessageBoxResult.No:
+                        return;
+                    default:
+                        return;
+                }
+            }
+
             await _repo.DeleteSpecialtyWithStudentsAsync(SelectedSpeciality.SpecialtyId);
             var specialty = Specialities.FirstOrDefault(s => s.SpecialtyId == SelectedSpeciality.SpecialtyId);
             if (specialty != null)
